@@ -92,81 +92,84 @@ def cadastralParcel():
 
     response = requests.get(url % refcat)
 
-    ns = {
-        'cp': 'http://inspire.ec.europa.eu/schemas/cp/4.0', 
-        'gml': 'http://www.opengis.net/gml/3.2'
-    }
-    root = ET.fromstring(response.text.encode('utf-8'))
-
-    # Attributes
-    refcat = root.find('*//cp:nationalCadastralReference', ns).text
-    area  = root.find('*//cp:areaValue', ns).text
-
-    # Geometries
-    coordinates = []
-
-    surfaces = root.findall('*//gml:surfaceMember', ns)
-
-    for surface in surfaces:
-        polygonPaths = surface.findall('*//gml:PolygonPatch', ns)
-
-        for polygonPath in polygonPaths:
-            exterior = polygonPath.findall('.//gml:exterior', ns)
-            interior = polygonPath.findall('.//gml:interior', ns)
-
-            for ext in exterior:
-                ar = ext.find('*//gml:posList', ns).text.split(' ')
-                points = []
-                for i in range(len(ar)/ 2):
-                    i = i * 2
-                    points.append([ar[i + 1], ar[i]])
-                coordinates.append([points])
-
-            for ext in interior:
-                ar = ext.find('*//gml:posList', ns).text.split(' ')
-                points = []
-                for i in range(len(ar)/ 2):
-                    i = i * 2
-                    points.append([ar[i + 1], ar[i]])
-                coordinates.append([points])
-
-    # wfs_drv = ogr.GetDriverByName('WFS')
-    # wfs_ds = wfs_drv.Open('WFS:' + url % refcat)
-
-    # try:
-    #     layer = wfs_ds.GetLayerByName('cp:CadastralParcel')
-    #     feat = layer.GetFeature(0)
-    #     geom = feat.GetGeometryRef()
-
-    #     # Realizamos transformación para invertir los ejes
-    #     source = osr.SpatialReference()
-    #     source.ImportFromProj4('+proj=latlong +datum=WGS84 +axis=neu +wktext')
-        
-    #     target = osr.SpatialReference()
-    #     target.ImportFromProj4('+proj=latlong +datum=WGS84 +axis=enu +wktext')
-
-    #     transform = osr.CoordinateTransformation(source, target)
-
-    #     geom.Transform(transform)
-
-    #     area = feat['areaValue']
-    #     geomJson = geom.ExportToJson()
-
-    try:
-        j = {
-            'type': 'Feature',
-            'properties': {
-                'refcat': refcat,
-                'area': area
-            },
-            'geometry': {
-                'type': 'MultiPolygon',
-                'coordinates': coordinates
-            }
+    if response.status_code == 200:
+        ns = {
+            'cp': 'http://inspire.ec.europa.eu/schemas/cp/4.0', 
+            'gml': 'http://www.opengis.net/gml/3.2'
         }
+        root = ET.fromstring(response.text.encode('utf-8'))
 
-        response = jsonify(j)
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
-    except:
+        # Attributes
+        refcat = root.find('*//cp:nationalCadastralReference', ns).text
+        area  = root.find('*//cp:areaValue', ns).text
+
+        # Geometries
+        coordinates = []
+
+        surfaces = root.findall('*//gml:surfaceMember', ns)
+
+        for surface in surfaces:
+            polygonPaths = surface.findall('*//gml:PolygonPatch', ns)
+
+            for polygonPath in polygonPaths:
+                exterior = polygonPath.findall('.//gml:exterior', ns)
+                interior = polygonPath.findall('.//gml:interior', ns)
+
+                for ext in exterior:
+                    ar = ext.find('*//gml:posList', ns).text.split(' ')
+                    points = []
+                    for i in range(len(ar)/ 2):
+                        i = i * 2
+                        points.append([ar[i + 1], ar[i]])
+                    coordinates.append([points])
+
+                for ext in interior:
+                    ar = ext.find('*//gml:posList', ns).text.split(' ')
+                    points = []
+                    for i in range(len(ar)/ 2):
+                        i = i * 2
+                        points.append([ar[i + 1], ar[i]])
+                    coordinates.append([points])
+
+        # wfs_drv = ogr.GetDriverByName('WFS')
+        # wfs_ds = wfs_drv.Open('WFS:' + url % refcat)
+
+        # try:
+        #     layer = wfs_ds.GetLayerByName('cp:CadastralParcel')
+        #     feat = layer.GetFeature(0)
+        #     geom = feat.GetGeometryRef()
+
+        #     # Realizamos transformación para invertir los ejes
+        #     source = osr.SpatialReference()
+        #     source.ImportFromProj4('+proj=latlong +datum=WGS84 +axis=neu +wktext')
+            
+        #     target = osr.SpatialReference()
+        #     target.ImportFromProj4('+proj=latlong +datum=WGS84 +axis=enu +wktext')
+
+        #     transform = osr.CoordinateTransformation(source, target)
+
+        #     geom.Transform(transform)
+
+        #     area = feat['areaValue']
+        #     geomJson = geom.ExportToJson()
+
+        try:
+            j = {
+                'type': 'Feature',
+                'properties': {
+                    'refcat': refcat,
+                    'area': area
+                },
+                'geometry': {
+                    'type': 'MultiPolygon',
+                    'coordinates': coordinates
+                }
+            }
+
+            response = jsonify(j)
+            response.headers.add('Access-Control-Allow-Origin', '*')
+            return response
+        except:
+            return handler500("Error procesando petitición")
+    else:
         return handler500("Error conectando a catastro")
