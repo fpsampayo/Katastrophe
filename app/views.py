@@ -12,6 +12,8 @@ def hello_world():
         <h4>Acceso a los servicios web del catastro.</h4>
         <a href="http://katastrophe.herokuapp.com/coor?srs=EPSG:4326&x=-8.588562011718752&y=42.28137302193453">
         Ejemplo de petición por coordenadas</a>
+        <a href="http://katastrophe.herokuapp.com/parcel?refcat=36054A01000100">
+        Ejemplo de descarga geojson de parcela catastral</a>
     '''
 
 
