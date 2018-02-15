@@ -10,10 +10,16 @@ import json
 def hello_world():
     return '''
         <h4>Acceso a los servicios web del catastro.</h4>
-        <a href="http://katastrophe.herokuapp.com/coor?srs=EPSG:4326&x=-8.588562011718752&y=42.28137302193453">
-        Ejemplo de petición por coordenadas</a>
-        <a href="http://katastrophe.herokuapp.com/parcel?refcat=36054A01000100">
-        Ejemplo de descarga geojson de parcela catastral</a>
+        <ul>
+            <li>
+                <a href="/coor?srs=EPSG:4326&x=-8.588562011718752&y=42.28137302193453">
+                Ejemplo de petición por coordenadas</a>
+            </li>
+            <li>
+                <a href="/parcel?refcat=001109900NG36B">
+                Ejemplo de descarga geojson de parcela catastral</a>
+            </li>
+        </ul>
     '''
 
 
@@ -132,29 +138,7 @@ def cadastralParcel():
                         i = i * 2
                         points.append([ar[i + 1], ar[i]])
                     coordinates.append([points])
-
-        # wfs_drv = ogr.GetDriverByName('WFS')
-        # wfs_ds = wfs_drv.Open('WFS:' + url % refcat)
-
-        # try:
-        #     layer = wfs_ds.GetLayerByName('cp:CadastralParcel')
-        #     feat = layer.GetFeature(0)
-        #     geom = feat.GetGeometryRef()
-
-        #     # Realizamos transformación para invertir los ejes
-        #     source = osr.SpatialReference()
-        #     source.ImportFromProj4('+proj=latlong +datum=WGS84 +axis=neu +wktext')
-            
-        #     target = osr.SpatialReference()
-        #     target.ImportFromProj4('+proj=latlong +datum=WGS84 +axis=enu +wktext')
-
-        #     transform = osr.CoordinateTransformation(source, target)
-
-        #     geom.Transform(transform)
-
-        #     area = feat['areaValue']
-        #     geomJson = geom.ExportToJson()
-
+                    
         try:
             j = {
                 'type': 'Feature',
