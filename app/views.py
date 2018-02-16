@@ -24,7 +24,9 @@ def hello_world():
 
 
 def handler500(message):
-    return jsonify({'status': 'false', 'message': message}), 500
+    response = jsonify({'status': 'false', 'message': message.capitalize()})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response, 500
 
 
 def getExtraData(refcat):
@@ -36,6 +38,9 @@ def getExtraData(refcat):
     if response.status_code == 200:
         ns = {'c': 'http://www.catastro.meh.es/'}
         root = ET.fromstring(response.text.encode('utf-8'))
+        err = root.find('*//c:err/c:des', ns)
+        if err != None:
+            return None, None, None, None
         tipo = root.find('*//c:cn', ns)
 
         muni = root.find('*//c:cm', ns).text
@@ -71,6 +76,7 @@ def coor():
             return handler500(err.text)
         pc1 = root.find('*//c:pc1', ns).text
         pc2 = root.find('*//c:pc2', ns).text
+        dir = root.find('*//c:ldt', ns).text
         refcat = pc1 + pc2
 
         muni, prov, masa, parc = getExtraData(refcat)
@@ -82,6 +88,7 @@ def coor():
              'municipio': muni,
              'masa': masa,
              'parcela': parc,
+             'direccion': dir,
              'accesoSede': urlAccesoSede}
 
         response = jsonify(r)
@@ -138,7 +145,7 @@ def cadastralParcel():
                         i = i * 2
                         points.append([ar[i + 1], ar[i]])
                     coordinates.append([points])
-                    
+
         try:
             j = {
                 'type': 'Feature',
