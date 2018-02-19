@@ -166,3 +166,13 @@ def cadastralParcel():
             return handler500("Error procesando petitición")
     else:
         return handler500("Error conectando a catastro")
+
+
+@app.route('/wms')
+def catastroWms():
+
+    catastroWmsUrl = 'http://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx?'
+    r = requests.get(catastroWmsUrl, params=request.args)
+
+    return r.content
+
