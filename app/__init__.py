@@ -9,4 +9,4 @@ if os.environ.get('DYNO') is not None:
     stream_handler = logging.StreamHandler()
     app.logger.addHandler(stream_handler)
     app.logger.setLevel(logging.INFO)
-    app.logger.info('microblog startup')
+    app.logger.info('Katastrophe startup')
