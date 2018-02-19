@@ -1,6 +1,6 @@
 # coding=utf-8
 from app import app
-from flask import request, jsonify
+from flask import request, jsonify, Response
 import requests
 #from osgeo import ogr, gdal, osr
 from xml.etree import ElementTree as ET
@@ -174,5 +174,5 @@ def catastroWms():
     catastroWmsUrl = 'http://ovc.catastro.meh.es/Cartografia/WMS/ServidorWMS.aspx?'
     r = requests.get(catastroWmsUrl, params=request.args)
 
-    return r.content
+    return Response(r.content, mimetype=r.headers['content-type'])
 
