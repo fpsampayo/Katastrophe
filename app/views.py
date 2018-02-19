@@ -31,10 +31,14 @@ def handler500(message):
 
 def getExtraData(refcat):
 
-    response = requests.get("http://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC?"
+    try:
+        response = requests.get("http://ovc.catastro.meh.es/ovcservweb/OVCSWLocalizacionRC/OVCCallejero.asmx/Consulta_DNPRC?"
                             "Provincia=&"
                             "Municipio=&"
                             "RC=%s" % refcat)
+    except:
+        return handler500("[extra-data] Problema accediendo a catastro.")
+
     if response.status_code == 200:
         ns = {'c': 'http://www.catastro.meh.es/'}
         root = ET.fromstring(response.text.encode('utf-8'))
@@ -66,7 +70,10 @@ def coor():
 
     url = "http://ovc.catastro.meh.es//ovcservweb/OVCSWLocalizacionRC/OVCCoordenadas.asmx/Consulta_RCCOOR?&SRS=%s&Coordenada_X=%s&Coordenada_Y=%s" % (str(srs), str(x), str(y))
 
-    response = requests.get(url)
+    try:
+        response = requests.get(url)
+    except:
+        return handler500("[coor] Problema accediendo a catastro.")
 
     if response.status_code == 200:
         ns = {'c': 'http://www.catastro.meh.es/'}
@@ -105,7 +112,10 @@ def cadastralParcel():
 
     url = 'http://ovc.catastro.meh.es/INSPIRE/wfsCP.aspx?service=wfs&version=2&request=getfeature&STOREDQUERIE_ID=GetParcel&srsname=EPSG:4326&REFCAT=%s'
 
-    response = requests.get(url % refcat)
+    try:
+        response = requests.get(url % refcat)
+    except:
+        return handler500("[parcel] Problema accediendo a catastro.")
 
     if response.status_code == 200:
         ns = {
